@@ -36,9 +36,11 @@ Our diagnostic dataset can be downloaded from [Google drive](https://drive.googl
        └── scene_1999.pkl
 ```
 
-## Baselines
+## Synthetic Experiments
 
-To train the [AutoBots](https://openreview.net/forum?id=Dup_dDqkZC5) baseline:
+### Baselines
+
+To train the [AutoBots](https://openreview.net/forum?id=Dup_dDqkZC5) baseline on our diagnostic dataset:
 ```
 python train.py --exp-id baseline --save-dir <results directory, e.g., ./ > --dataset-path <path to synth dataset> --evaluate_causal
 ```
@@ -48,7 +50,7 @@ To run the [data augmentation](https://arxiv.org/abs/2207.03586) baseline:
 python train.py --exp-id baseline --save-dir <results directory, e.g., ./> --dataset-path <path to synth dataset> --evaluate_causal --reg-type augment
 ```
 
-## Regularization
+### Causal Regularization
 
 For a fair and efficient comparision between different methods, we fine-tune the same pre-trained model in our experiments.
 
@@ -64,10 +66,52 @@ python train.py --exp-id baseline --save-dir <results directory, e.g., ./> --dat
         --weight-path <path to the last ckpt of baseline model, e.g., ./results/Autobot_ego_regType:None_baseline_s1/models_700.pth> --start-epoch 700
 ```
 
+### Evaluation
+
 To evaluate on OOD sets:
 ```
 python evaluate.py --models-path <path to the model> --dataset-path <path to the ood dataset>
 ```
+
+## Real-world Experiments
+
+### Baselines
+
+To train the [AutoBots](https://openreview.net/forum?id=Dup_dDqkZC5) baseline on the ETH-UCY dataset:
+```
+python train.py --exp-id <output tag> --dataset s2r --reg-type contrastive --dataset-path <path to the ETH-UCY dataset> --num-encoder-layers 1 --num-decoder-layers 1 --num-epochs 50 --learning-rate-sched 10 20 30 40 50 --low-data 1.0 --dataset-path-real <path to the ETH-UCY dataset> --dataset-path-synth <path to the synthetic dataset> --contrastive-weight 0.0 --save-dir <directory for saving results> 
+```
+
+To run the vanilla sim2real, i.e., training on the ETH-UCY and our diagnostic datasets jointly:
+```
+python train.py --exp-id <output tag> --dataset s2r --reg-type baseline --dataset-path <path to the ETH-UCY dataset> --num-encoder-layers 1 --num-decoder-layers 1 --num-epochs 50 --learning-rate-sched 10 20 30 40 50 --low-data 1.0 --dataset-path-real <path to the ETH-UCY dataset> --dataset-path-synth <path to the synthetic dataset> --save-dir <directory for saving results> 
+```
+
+To run the data augmentation sim2real:
+```
+python train.py --exp-id <output tag> --dataset s2r --reg-type augment --dataset-path <path to the ETH-UCY dataset> --num-encoder-layers 1 --num-decoder-layers 1 --num-epochs 50 --learning-rate-sched 10 20 30 40 50 --low-data 1.0 --dataset-path-real <path to the ETH-UCY dataset> --dataset-path-synth <path to the synthetic dataset> --save-dir <directory for saving results> 
+```
+
+### Causal Sim2Real
+
+To run our causal contrastive sim2real:
+```
+python train.py --exp-id <output tag> --dataset s2r --reg-type contrastive --dataset-path <path to the ETH-UCY dataset> --num-encoder-layers 1 --num-decoder-layers 1 --num-epochs 50 --learning-rate-sched 10 20 30 40 50 --low-data 1.0 --dataset-path-real <path to the ETH-UCY dataset> --dataset-path-synth <path to the synthetic dataset> --contrastive-weight <weight of contrastive loss> --save-dir <directory for saving results> 
+```
+
+To run the causal ranking sim2real:
+```
+python train.py --exp-id <output tag> --dataset s2r --reg-type ranking --dataset-path <path to the ETH-UCY dataset> --num-encoder-layers 1 --num-decoder-layers 1 --num-epochs 50 --learning-rate-sched 10 20 30 40 50 --low-data 1.0 --dataset-path-real <path to the ETH-UCY dataset> --dataset-path-synth <path to the synthetic dataset> --ranking-weight <weight of ranking loss> --save-dir <directory for saving results> 
+```
+
+### Evaluation
+
+To evaluate a model:
+```
+python evaluate.py --dataset-path <path to the testing data> --models-path <path to the model> --dataset s2r
+```
+
+For experiments in low-data regimes, we keep the same training steps while reducing `--low-data` and `--learning-rate-sched` accordingly. For example, we set `--low-data` to 0.5 and `--learning-rate-sched` to 20 40 60 80 100, for experiments with 50% data.
 
 ## Results
 

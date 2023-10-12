@@ -15,7 +15,7 @@ def get_train_args():
     # Section: Dataset
     parser.add_argument("--train_data_size", type=int, default=-1, help="Number of scenes to train on.")
     parser.add_argument("--dataset", type=str, default="synth", choices=["Argoverse", "Nuscenes", "trajnet++",
-                                                                       "interaction-dataset", "synth"],
+                                                                       "interaction-dataset", "synth", "s2r"],
                         help="Dataset to train on.")
     parser.add_argument("--dataset-path", type=str, required=True, help="Path to dataset files.")
     parser.add_argument("--use-map-image", type=bool, default=False, help="Use map image if applicable.")
@@ -24,7 +24,7 @@ def get_train_args():
     # Section: Algorithm
     parser.add_argument("--model-type", type=str, default="Autobot-Ego", choices=["Autobot-Joint", "Autobot-Ego"],
                         help="Whether to train for joint prediction or ego-only prediction.")
-    parser.add_argument("--reg-type", type=str, default="None", choices=["None", "contrastive", "consistency", "ranking"],
+    parser.add_argument("--reg-type", type=str, default="None", choices=["None", "contrastive", "consistency", "ranking", "baseline", "augment"],
                         help="Whether to train causality with consistency or contrastive regularizer.")
     parser.add_argument("--num-modes", type=int, default=1, help="Number of discrete latent variables for Autobot.")
     parser.add_argument("--hidden-size", type=int, default=128, help="Model's hidden size.")
@@ -65,6 +65,13 @@ def get_train_args():
 
     # Section: Evaluating
     parser.add_argument("--evaluate_causal", action="store_true", help="Evaluates causality understanding metrics.")
+
+    # Section: Sim2Real
+    parser.add_argument("--low-data", type=float, default=1.0, help="proportion of training data")
+    parser.add_argument("--dataset-path-real", type=str, help="Path to real-world dataset files.")
+    parser.add_argument("--dataset-path-synth", type=str, help="Path to synth dataset files.")
+    parser.add_argument("--batch-size-sim", type=int, default=64, help="Sim batch size")
+
     args = parser.parse_args()
 
     if args.use_map_image and args.use_map_lanes:
@@ -83,7 +90,7 @@ def get_train_args():
         assert "Ego" in args.model_type, "Can't run AutoBot-Joint on Synth-v1..."
         assert not args.use_map_image and not args.use_map_lanes, "Synth-v1 has no scene map information..."
 
-    results_dirname = create_results_folder(args)
+    results_dirname = create_results_folder(args) # start here
     save_config(args, results_dirname)
 
     return args, results_dirname
@@ -93,7 +100,7 @@ def get_eval_args():
     parser = argparse.ArgumentParser(description="AutoBot")
     parser.add_argument("--models-path", type=str, required=True, help="Load model checkpoint")
     parser.add_argument("--dataset", type=str, default="synth", choices=["Argoverse", "Nuscenes", "trajnet++",
-                                                                       "interaction-dataset", "synth"], help="Dataset to evaluate on.")
+                                                                       "interaction-dataset", "synth", 's2r'], help="Dataset to evaluate on.")
     parser.add_argument("--dataset-path", type=str, required=True, help="Dataset path.")
     parser.add_argument("--batch-size", type=int, default=200, help="Batch size")
     parser.add_argument("--disable-cuda", action="store_true", help="Disable CUDA")
@@ -115,13 +122,25 @@ def create_results_folder(args):
     # model_configname += "_roadImg" if args.use_map_image else ""
     # model_configname += "_roadLanes" if args.use_map_lanes else ""
     # model_configname += "_NScene:" + str(args.train_data_size)
-    model_configname += "_regType:" + args.reg_type
-    if args.reg_type == "consistency":
-        model_configname += "_W:" + str(int(args.consistency_weight))
-    elif args.reg_type == "contrastive":
-        model_configname += "_W:" + str(int(args.contrastive_weight))
-    elif args.reg_type == "ranking":
-        model_configname += "_W:" + str(int(args.ranking_weight)) + "_M:" + str(args.ranking_margin)
+    if args.dataset == 's2r':
+        model_configname += "s2r_regType:" + args.reg_type
+        model_configname += "_low_data_" + str(args.low_data)
+        if args.reg_type == "consistency":
+            model_configname += "_W:" + str(int(args.consistency_weight))
+        elif args.reg_type == "contrastive":
+            model_configname += "_W:" + str(int(args.contrastive_weight))
+        elif args.reg_type == "ranking":
+            model_configname += "_W:" + str(int(args.ranking_weight)) + "_M:" + str(args.ranking_margin)
+        model_configname += "_B:" + str(int(args.batch_size_sim))
+    else:
+        model_configname += "_regType:" + args.reg_type
+        if args.reg_type == "consistency":
+            model_configname += "_W:" + str(int(args.consistency_weight))
+        elif args.reg_type == "contrastive":
+            model_configname += "_W:" + str(int(args.contrastive_weight))
+        elif args.reg_type == "ranking":
+            model_configname += "_W:" + str(int(args.ranking_weight)) + "_M:" + str(args.ranking_margin)
+        
     if args.exp_id is not None:
         model_configname += ("_" + args.exp_id)
     model_configname += "_s"+str(args.seed)

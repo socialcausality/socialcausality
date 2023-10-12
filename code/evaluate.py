@@ -58,6 +58,9 @@ class Evaluator:
 
         elif self.args.dataset == "synth":
             val_dset = SynthV1CausalDataset(dset_path=self.args.dataset_path, split="val")
+        
+        elif "s2r" in self.args.dataset:
+            val_dset = TrajNetPPDataset(dset_path=self.args.dataset_path, split_name="test")
 
         else:
             raise NotImplementedError
@@ -98,7 +101,7 @@ class Evaluator:
                                             use_map_img=self.model_config.use_map_image,
                                             use_map_lanes=self.model_config.use_map_lanes,
                                             map_attr=self.map_attr,
-                                            return_embeddings=(self.model_config.reg_type in ["contrastive", "ranking"] and self.model_config.dataset == "synth")).to(self.device)
+                                            return_embeddings=((self.model_config.reg_type in ["contrastive", "ranking"] and self.model_config.dataset == "synth") or self.model_config.dataset == "s2r")).to(self.device)
 
         elif "Joint" in self.model_config.model_type:
             self.autobot_model = AutoBotJoint(k_attr=self.k_attr,
@@ -284,6 +287,8 @@ class Evaluator:
 
                 if "Ego" in self.model_config.model_type:
                     if self.model_config.dataset == "synth" and self.model_config.reg_type == "contrastive":
+                        pred_obs, mode_probs, _ = self.autobot_model(ego_in, agents_in, roads)
+                    elif self.model_config.dataset == "s2r":
                         pred_obs, mode_probs, _ = self.autobot_model(ego_in, agents_in, roads)
                     else:
                         pred_obs, mode_probs = self.autobot_model(ego_in, agents_in, roads)
