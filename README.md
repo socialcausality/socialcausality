@@ -130,6 +130,13 @@ Comparison of different transfer methods from simulation to the ETH-UCY dataset:
   <img src="docs/transfer.png" height="200">
 </p>
 
+## Illustrations
+
+Exemplary animations for each data split:
+ID             | OOD Density             | OOD Context             | OOD Context+Density | 
+:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
+<img src="docs/id.gif" width="200" />|<img src="docs/ood_density.gif" width="200" />|<img src="docs/ood_context.gif" width="200" />|<img src="docs/ood_both.gif" width="200" />
+
 ## Citation
 
 If you find this work useful in your research, please consider cite:
