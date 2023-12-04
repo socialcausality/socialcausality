@@ -130,7 +130,14 @@ Comparison of different transfer methods from simulation to the ETH-UCY dataset:
   <img src="docs/transfer.png" height="200">
 </p>
 
-[NEW] Evaluation of our method on other baselines
+## Illustrations
+
+Exemplary animations for each data split:
+ID             | OOD Density             | OOD Context             | OOD Context+Density | 
+:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
+<img src="docs/id.gif" width="200" />|<img src="docs/ood_density.gif" width="200" />|<img src="docs/ood_context.gif" width="200" />|<img src="docs/ood_both.gif" width="200" />
+
+## Updates
 
 We have expanded the evaluation of our proposed method to the D-LSTM, another baseline benchmarked in our analysis. The results, summarized in the table below, corroborate our earlier findings with the AutoBots. Our proposed causal regularization method yields consistent improvements across all challenging metrics, including both the ACE-DC/IC and out-of-distribution FDE.
 
@@ -138,13 +145,6 @@ We have expanded the evaluation of our proposed method to the D-LSTM, another ba
 | -------- |:-------------:|:-------------:|:-------------:|:-------------:|
 | Baseline  | 0.532  | 0.614  | 0.717           | 0.783           |
 | Ranking (ours)  | 0.474  | 0.554  | 0.697     | 0.739           |
-
-## Illustrations
-
-Exemplary animations for each data split:
-ID             | OOD Density             | OOD Context             | OOD Context+Density | 
-:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
-<img src="docs/id.gif" width="200" />|<img src="docs/ood_density.gif" width="200" />|<img src="docs/ood_context.gif" width="200" />|<img src="docs/ood_both.gif" width="200" />
 
 ## Citation
 
