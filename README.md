@@ -145,15 +145,3 @@ We have expanded the evaluation of our proposed method to the D-LSTM, another ba
 | -------- |:-------------:|:-------------:|:-------------:|:-------------:|
 | Baseline  | 0.532  | 0.614  | 0.717           | 0.783           |
 | Ranking (ours)  | 0.474  | 0.554  | 0.697     | 0.739           |
-
-## Citation
-
-If you find this work useful in your research, please consider cite:
-
-```
-@article{socialcausality2023,
-  title={What If You Were Not There? Learning Causally-Aware Representations of Multi-Agent Interactions},
-  journal={openreview},
-  year={2023}
-}
-```
